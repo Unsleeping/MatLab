@@ -1,0 +1,80 @@
+Nmax = 10;  % 10 20 30 (60) \ 10 30 50 100 200 Nmax is the biggest number of summing
+p_ith = zeros(401); % create empty massives
+p_spth = zeros(401);
+p_i = zeros(401);
+p_sp = zeros(401);
+%yr = zeros(401);
+sj = zeros(1,Nmax + 1);
+sy = zeros(1,Nmax + 1);
+sphj = zeros(1,Nmax + 1);
+sphy = zeros(1,Nmax + 1);
+sphjka = zeros(1,Nmax + 1);
+sphyka = zeros(1,Nmax + 1);
+sphjz0 = zeros(1,Nmax + 1);
+sphyz0 = zeros(1,Nmax + 1);
+P = zeros(1,Nmax);
+c = zeros(1,Nmax);
+ka = 20; % don't remember :D
+z0 = 50; % initial z-coordinate of spherical sourse
+%{{k = 10^6 / 1500; yr = (- 4 * pi /k^2)*(...)}}
+for x = -200:200 % start series of passing the plane
+   % disp(x)
+    for z = -200:200
+        r = sqrt(x * x + z * z); % current radius vector
+        costheta = z / r; % current cos(theta)
+        p_ith(x + 201, z + 201) = exp(1i * r * costheta); % {k*A = 1} filling massive with theoretical values
+        P(1) = 1; % count Legendre polynomial
+        P(2) = costheta; %{{check down}}
+        % count surface's coefficients below
+        c(1) = -1i^(0) * (2 * 0 + 1) * (cos(ka) / ka - sin(ka) / (ka)^2) / (cos(ka) / ka - sin(ka) / (ka)^2 + 1i * (sin(ka) / ka + cos(ka) / (ka)^2)); %c0
+        sphjka(1) = sin (ka) / ka;                            %j0 r = ka
+        sphjka(2) = (-1) * cos(ka) / ka + sin(ka) / (ka)^2;   %j1 r = ka
+        sphyka(1) = (-1) * cos(ka) / ka;                      %y0 r = ka
+        sphyka(2) = (-1) * sin(ka) / ka - cos(ka) / (ka)^2;   %y1 r = ka
+        sphjz0(1) = sin (z0) / z0;                          %j0 z0
+        sphjz0(2) = (-1) * cos(z0) / z0 + sin(z0) / (z0)^2; %j1 z0
+        sphyz0(1) = (-1) * cos(z0) / z0;                    %y0 z0
+        sphyz0(2) = (-1) * sin(z0) / z0 - cos(z0) / (z0)^2; %y1 z0
+        sphj(1) = sin (r) / r;                        %j0 r
+        sphj(2) = (-1) * cos(r) / r + sin(r) / (r)^2; %j1 r
+        sphy(1) = (-1) * cos(r) / r;                  %y0 r
+        sphy(2) = (-1) * sin(r) / r - cos(r) / (r)^2; %y1 r
+        for n = 0:(Nmax - 1)
+            sj(1) = cos(ka) / ka - sin(ka) / (ka)^2; %jder0 r = ka
+            sy(1) = sin(ka) / ka + cos(ka) / (ka)^2; %yder0 r = ka
+            if n >= 1
+                sphjka(n + 2) = (2 * (n + 1) - 1) / ka * sphjka(n + 1) - sphjka(n); %jn+1 r = ka
+                sphyka(n + 2) = (2 * (n + 1) - 1) / ka * sphyka(n + 1) - sphyka(n); %yn+1 r = ka
+                sphj(n + 2) = (2 * (n + 1) - 1) / r * sphj(n + 1) - sphj(n); %jn+1 r
+                sphy(n + 2) = (2 * (n + 1) - 1) / r * sphy(n + 1) - sphy(n); %yn+1 r
+                sphjz0(n + 2) = (2 * (n + 1) - 1) / r * sphjz0(n + 1) - sphjz0(n); %jn+1 z0
+                sphyz0(n + 2) = (2 * (n + 1) - 1) / r * sphyz0(n + 1) - sphyz0(n); %yn+1 z0
+                sj(n + 1) = sphjka(n) - (n + 1) / ka * sphjka(n + 1); %jder1 r = ka
+                sy(n + 1) = sphyka(n) - (n + 1) / ka * sphyka(n + 1); %yder1 r = ka
+                c(n + 1) = -1i^n * (2 * n + 1) * sj(n + 1)/(sj(n + 1) + 1i * sy(n + 1));
+                if n <= (Nmax - 2) % some optimisations and final result
+                    P(n + 2) = (2 * n + 1) / (n + 1) * costheta * P(n + 1) - n / (n + 1) * P(n);
+                    %yr(x + 201, z + 201) = (yr(x + 201, z + 201) +  (n + 1) * real(c(n+1) + conj(c(n + 1 + 1)) + 2 * c(n + 1) * conj(c(n + 1 + 1))));
+                end
+            end
+            p_i(x + 201, z + 201) = p_i(x + 201, z + 201) + 1i^(n) * (2 * n + 1) * P(n + 1) * sphj(n + 1);
+            %p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * (-1)^n * (2 * n  + 1) * sqrt(pi / (2 * z0))*(besselj(n + 1/2, z0) + 1i * bessely(n + 1/2, z0)) * P(n + 1) * sqrt(pi / (2 * r)) * besselj(n + 1 / 2, r);
+            p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * c(n + 1) * (-1)^n * (2 * n  + 1) * (sphjz0(n + 1) + 1i * sphyz0(n + 1)) * P(n + 1) * (sphj(n + 1) + 1i * sphy(n + 1));
+            p_spth(x + 201, z + 201) = exp(1i * sqrt((r)^2 + (z0)^2 + 2 * r * z0 * costheta)) / sqrt((r)^2 + (z0)^2 + 2 * r  * z0 * costheta); %50 = kz0 место с рассеивателем
+        end
+    end
+end
+x = -200:200;
+z = -200:200;
+%mesh(x, z, abs(p_i(x + 201, z + 201) - p_ith(x + 201, z + 201)))
+mesh(x, z, abs(p_sp(x + 201, z + 201) - p_spth(x + 201, z + 201)));
+colormap jet %winter summer default spring autumn parula hsv hot cool gray bone copper pink lines colourcube prism flag white
+lim = caxis;
+caxis([0 0.1]);
+colorbar
+% c = colorbar;
+% c.Label.String = 'Elevation'; %doesn't work
+%for az = 360:-1:-0
+% view(az, 30)
+% pause(0.01)
+% end
