@@ -3,6 +3,7 @@ p_ith = zeros(401); % create empty massives
 p_spth = zeros(401);
 p_i = zeros(401);
 p_sp = zeros(401);
+fact2 = 0;
 %yr = zeros(401);
 sj = zeros(1,204);
 sy = zeros(1,204);
@@ -26,9 +27,6 @@ Rr = 0;
 Rz0 = 0;
 P = zeros(1,Nmax);
 c = zeros(1,Nmax);
-Rka = 0;
-Rz0 = 0;
-Rr = 0;
 ka = 20; %
 z0 = 50; % initial z-coordinate of spherical sourse
 %{{k = 10^6 / 1500; yr = (- 4 * pi /k^2)*(...)}}
@@ -63,32 +61,27 @@ for x = -200:200 % start series of passing the plane
         for n = 0:(Nmax - 1)
             if n >= 1
                 sphyka(n + 2) = (2 * (n + 1) - 1) / ka * sphyka(n + 1) - sphyka(n); %yn+1 r = ka 
-                
                 sphy(n + 2) = (2 * (n + 1) - 1) / r * sphy(n + 1) - sphy(n); %yn+1 r
-                
                 sphyz0(n + 2) = (2 * (n + 1) - 1) / r * sphyz0(n + 1) - sphyz0(n); %yn+1 z0
-                
-                if (n + 1)<= (ka)
+                if (n + 1) <= (ka)
                     sphjka(n + 2) = (2 * (n + 1) - 1) / ka * sphjka(n + 1) - sphjka(n); %jn+1 r = ka
                     if (sphjka(n + 2) ~= 0)
                         Nka = (n + 2);
                     end
                 else
-                    for t = (n + 1):(200)
+                    for t = 0:(200) % можно пустить счетчик с (n+1)-ого так как до этого все посчитали предыдущей реккурентой, но тогда возникнет необходимость выбирать: а сколько добавлять сверху, в зависимости от не равенства нулю этих стартовых элементов
                         k = 200 - t;
-                        sphjkaN(k + 2 + 1) = 0; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
-                        sphjkaN(k + 1 + 1 ) = 1;
+                        sphjkaN(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
+                        sphjkaN(k + 1 + 1) = 1; %эти первые выбраны произвольным образом, но искомый номер больше на 400
                         sphjkaN(k + 1) = (2 * k  + 3) / ka * sphjkaN(k + 1 + 1) - sphjkaN(k + 2 + 1);
                     end
-                    for t = (n + 1):(200)
-                        k = 200 - t;
-                        Rka = sphjkaN(Nka) / sphjka(Nka);
-                        sphjka(k + 1) = sphjka(k + 1) / Rka;
+                    for t = (n + 1):(200) % с (n+1)-ого так как все предыдущие найденны точно!
+                        Rka = sphjkaN(Nka) / sphjka(Nka); % здесь предусмотрен случай, чтобы знаменатель не обращался в ноль
+                        sphjka(t + 1) = sphjkaN(t + 1) / Rka;
                     end
                 end
                 if (n + 1)<= (r)
                     sphj(n + 2) = (2 * (n + 1) - 1) / r * sphj(n + 1) - sphj(n); %jn+1 r
-                
                     sphjz0(n + 2) = (2 * (n + 1) - 1) / r * sphjz0(n + 1) - sphjz0(n); %jn+1 z0
                     if (sphj(n + 2) ~= 0)
                         Nr = (n + 2);
@@ -97,25 +90,23 @@ for x = -200:200 % start series of passing the plane
                         Nz0 = (n + 2);
                     end
                 else
-                    for t = (n + 1):(200)
+                    for t = 0:(200)
                         k = 200 - t;
-                        sphjN(k + 2 + 1) = 0; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
+                        sphjN(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
                         sphjN(k + 1 + 1 ) = 1;
                         sphjN(k + 1) = (2 * k  + 3) / ka * sphjN(k + 1 + 1) - sphjN(k + 2 + 1);
                         
-                        sphjz0N(k + 2 + 1) = 0; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
+                        sphjz0N(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
                         sphjz0N(k + 1 + 1 ) = 1;
                         sphjz0N(k + 1) = (2 * k  + 3) / ka * sphjz0N(k + 1 + 1) - sphjz0N(k + 2 + 1);
                     end
                     for t = (n + 1):(200)
-                        k = 200 - t;
                         Rr = sphjN(Nr) / sphj(Nr);
-                        sphj(k + 1) = sphj(k + 1) / Rr;
+                        sphj(t + 1) = sphjN(t + 1) / Rr;
                     end
                      for t = (n + 1):(200)
-                        k = 200 - t;
                         Rz0 = sphjz0N(Nz0) / sphjz0(Nz0);
-                        sphjz0(k + 1) = sphjz0(k + 1) / Rz0;
+                        sphjz0(t + 1) = sphjz0N(t + 1) / Rz0;
                     end
                 end
                 sj(n + 1) = sphjka(n) - (n + 1) / ka * sphjka(n + 1); %jder1 r = ka
@@ -126,17 +117,39 @@ for x = -200:200 % start series of passing the plane
                     %yr(x + 201, z + 201) = (yr(x + 201, z + 201) +  (n + 1) * real(c(n+1) + conj(c(n + 1 + 1)) + 2 * c(n + 1) * conj(c(n + 1 + 1))));
                 end
             end
-            p_i(x + 201, z + 201) = p_i(x + 201, z + 201) + 1i^(n) * (2 * n + 1) * P(n + 1) * sphj(n + 1);
-            %p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * (-1)^n * (2 * n  + 1) * sqrt(pi / (2 * z0))*(besselj(n + 1/2, z0) + 1i * bessely(n + 1/2, z0)) * P(n + 1) * sqrt(pi / (2 * r)) * besselj(n + 1 / 2, r);
-            p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * (-1)^n * (2 * n  + 1) * (sphjz0(n + 1) + 1i * sphyz0(n + 1)) * P(n + 1) * sphj(n + 1);
-            p_spth(x + 201, z + 201) = exp(1i * sqrt((r)^2 + (z0)^2 + 2 * r * z0 * costheta)) / sqrt((r)^2 + (z0)^2 + 2 * r  * z0 * costheta); %50 = kz0 место с рассеивателем
-        end
+         if (r < 0.00001)
+             for u = 0:(Nmax - 1)
+                fact2 = prod(1:2:u);
+                sphj(u + 1) = r^(u) / (fact2 * (2 * u + 1)) * (1 - r^2 / (2 * (3  + 2 * u) ) );
+            end
+         end
+         if (ka < 0.00001)
+             for u = 0:(Nmax - 1)
+                fact2 = prod(1:2:u);
+                sphjka(u + 1) = (ka)^(u) / (fact2 * (2 * u + 1)) * (1 - (ka)^2 / (2 * (3  + 2 * u) ) );
+            end
+         end
+         if (z0 < 0.00001)
+             for u = 0:(Nmax - 1)
+                fact2 = prod(1:2:u);
+                sphjz0(u + 1) = (z0)^(u) / (fact2 * (2 * u + 1)) * (1 - (z0)^2 / (2 * (3  + 2 * u) ) );
+            end
+         end
+         p_i(x + 201, z + 201) = p_i(x + 201, z + 201) + 1i^(n) * (2 * n + 1) * P(n + 1) * sphj(n + 1);
+         %p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * (-1)^n * (2 * n  + 1) * sqrt(pi / (2 * z0))*(besselj(n + 1/2, z0) + 1i * bessely(n + 1/2, z0)) * P(n + 1) * sqrt(pi / (2 * r)) * besselj(n + 1 / 2, r);
+         p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * (-1)^n * (2 * n  + 1) * (sphjz0(n + 1) + 1i * sphyz0(n + 1)) * P(n + 1) * sphj(n + 1);
+         p_spth(x + 201, z + 201) = exp(1i * sqrt((r)^2 + (z0)^2 + 2 * r * z0 * costheta)) / sqrt((r)^2 + (z0)^2 + 2 * r  * z0 * costheta); %50 = kz0 место с рассеивателем
+       end
     end
 end
 x = -200:200;
 z = -200:200;
-mesh(x, z, abs(p_i(x + 201, z + 201) - p_ith(x + 201, z + 201)))
-%mesh(x, z, abs(p_sp(x + 201, z + 201) - p_spth(x + 201, z + 201)));
+mesh(x, z, abs(p_i(x + 201, z + 201) - p_ith(x + 201, z + 201)));
+colormap jet %winter summer default spring autumn parula hsv hot cool gray bone copper pink lines colourcube prism flag white
+lim = caxis;
+caxis([0 2]);
+colorbar
+mesh(x, z, abs(p_sp(x + 201, z + 201) - p_spth(x + 201, z + 201)));
 colormap jet %winter summer default spring autumn parula hsv hot cool gray bone copper pink lines colourcube prism flag white
 lim = caxis;
 caxis([0 0.1]);
