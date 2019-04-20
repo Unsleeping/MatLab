@@ -4,23 +4,24 @@ p_spth = zeros(401);
 p_i = zeros(401);
 p_sp = zeros(401);
 %yr = zeros(401);
-sj = zeros(1,Nmax + 1);
-sy = zeros(1,Nmax + 1);
-sphj = zeros(1,Nmax + 1);
-sphy = zeros(1,Nmax + 1);
-sphjka = zeros(1,Nmax + 1);
-sphyka = zeros(1,Nmax + 1);
-sphjz0 = zeros(1,Nmax + 1);
-sphyz0 = zeros(1,Nmax + 1);
-sphjN = zeros(1,Nmax + 1);
-sphyN = zeros(1,Nmax + 1);
-sphjkaN = zeros(1,Nmax + 1);
-sphykaN = zeros(1,Nmax + 1);
-sphjz0N = zeros(1,Nmax + 1);
-sphyz0N = zeros(1,Nmax + 1);
-P = zeros(1,Nmax);
-%c = zeros(1,Nmax);
+sj = zeros(1, Nmax + 1);
+sy = zeros(1, Nmax + 1);
+sphj = zeros(1, Nmax + 1);
+% sphy = zeros(1, Nmax + 1);
+sphjka = zeros(1, Nmax + 1);
+% sphyka = zeros(1, Nmax + 1);
+sphjz0 = zeros(1, Nmax + 1);
+sphyz0 = zeros(1, Nmax + 1);
+sphjN = zeros(1, Nmax + 1);
+sphyN = zeros(1, Nmax + 1);
+sphjkaN = zeros(1, Nmax + 1);
+sphykaN = zeros(1, Nmax + 1);
+sphjz0N = zeros(1, Nmax + 1);
+sphyz0N = zeros(1, Nmax + 1);
+P = zeros(1, Nmax);
+%c = zeros(1, Nmax);
 fact2 = 0;
+h = 0.5;
 Nka = 0;
 Nr = 0;
 Nz0 = 0;
@@ -34,22 +35,22 @@ z0 = 50; % initial z-coordinate of spherical sourse
 %sy(1) = sin(ka) / ka + cos(ka) / (ka)^2; %yder0 r = ka
 for x = -200:200 % start series of passing the plane
      for z = -200:200
-        r = sqrt(x * x + z * z); % current radius vector
-        costheta = z / r; % current cos(theta)
+        r = h * sqrt(x * x + z * z); % current radius vector
+        costheta = h * z / r; % current cos(theta)
         p_ith(x + 201, z + 201) = exp(1i * r * costheta); % {k*A = 1} filling massive with theoretical values
         p_spth(x + 201, z + 201) = exp(1i * sqrt((r)^2 + (z0)^2 + 2 * r * z0 * costheta)) / sqrt((r)^2 + (z0)^2 + 2 * r  * z0 * costheta); %50 = kz0 место с рассеивателем
         sphjka(1) = sin (ka) / ka;                            %j0 r = ka
         sphjka(2) = (-1) * cos(ka) / ka + sin(ka) / (ka)^2;   %j1 r = ka
-        sphyka(1) = (-1) * cos(ka) / ka;                      %y0 r = ka
-        sphyka(2) = (-1) * sin(ka) / ka - cos(ka) / (ka)^2;   %y1 r = ka
+%         sphyka(1) = (-1) * cos(ka) / ka;                      %y0 r = ka
+%         sphyka(2) = (-1) * sin(ka) / ka - cos(ka) / (ka)^2;   %y1 r = ka
         sphjz0(1) = sin (z0) / z0;                          %j0 z0
         sphjz0(2) = (-1) * cos(z0) / z0 + sin(z0) / (z0)^2; %j1 z0
         sphyz0(1) = (-1) * cos(z0) / z0;                    %y0 z0
         sphyz0(2) = (-1) * sin(z0) / z0 - cos(z0) / (z0)^2; %y1 z0
         sphj(1) = sin (r) / r;                        %j0 r
         sphj(2) = (-1) * cos(r) / r + sin(r) / (r)^2; %j1 r
-        sphy(1) = (-1) * cos(r) / r;                  %y0 r
-        sphy(2) = (-1) * sin(r) / r - cos(r) / (r)^2; %y1 r
+%         sphy(1) = (-1) * cos(r) / r;                  %y0 r
+%         sphy(2) = (-1) * sin(r) / r - cos(r) / (r)^2; %y1 r
         P(1) = 1; % count Legendre polynomial
         P(2) = costheta; %{{check down}}
         
@@ -61,9 +62,9 @@ for x = -200:200 % start series of passing the plane
         %c(1) = -1i^(0) * (2 * 0 + 1) * (cos(ka) / ka - sin(ka) / (ka)^2) / (cos(ka) / ka - sin(ka) / (ka)^2 + 1i * (sin(ka) / ka + cos(ka) / (ka)^2)); %c0
         for n = 0:(Nmax - 1) % (n + 1) -> индекс, (n)-> порядок функции, так как с нуля
             if n >= 1
-                sphyka(n + 2) = (2 * (n + 1) - 1) / ka * sphyka(n + 1) - sphyka(n); %yn+1 r = ka 
-                sphy(n + 2) = (2 * (n + 1) - 1) / r * sphy(n + 1) - sphy(n); %yn+1 r
-                sphyz0(n + 2) = (2 * (n + 1) - 1) / r * sphyz0(n + 1) - sphyz0(n); %yn+1 z0
+%                 sphyka(n + 2) = (2 * (n + 1) - 1) / ka * sphyka(n + 1) - sphyka(n); %yn+1 r = ka 
+%                 sphy(n + 2) = (2 * (n + 1) - 1) / r * sphy(n + 1) - sphy(n); %yn+1 r
+                sphyz0(n + 2) = (2 * (n + 1) - 1) / z0 * sphyz0(n + 1) - sphyz0(n); %yn+1 z0
                 if (n + 1) <= (ka)
                     sphjka(n + 1 + 1) = (2 * (n + 1) - 1) / ka * sphjka(n + 1) - sphjka(n); %jn+1 r = ka
                     if (sphjka(n + 2) ~= 0)
@@ -73,7 +74,7 @@ for x = -200:200 % start series of passing the plane
                     for t = 0:(200 + Nmax) % можно пустить счетчик с (n+1)-ого так как до этого все посчитали предыдущей реккурентой, но тогда возникнет необходимость выбирать: а сколько нужно прибавить к счетчику итераций для того, чтобы стартовый элемент не был равен нулю
                         k = 200 + Nmax - t; %нужен для того, чтобы идти сверху вниз
                         sphjkaN(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
-                        sphjkaN(k + 1 + 1) = 1; %эти первые выбраны произвольным образом, но искомый номер больше на 400
+                        sphjkaN(k + 1 + 1) = 1; %эти первые выбраны произвольным образом, но искомый номер больше на 200
                         sphjkaN(k + 1) = (2 * k  + 3) / ka * sphjkaN(k + 1 + 1) - sphjkaN(k + 2 + 1);
                     end
                     for t = (n + 1):(Nmax) % с (n+1)-ого, так как все предыдущие найдены точно!
@@ -81,33 +82,38 @@ for x = -200:200 % start series of passing the plane
                         sphjka(t + 1) = sphjkaN(t + 1) / Rka;
                     end
                 end
+                if (n + 1) <= (z0)
+                    sphjz0(n + 1 + 1) = (2 * (n + 1) - 1) / z0 * sphjz0(n + 1) - sphjz0(n); %jn+1 r = z0
+                    if (sphjz0(n + 2) ~= 0)
+                        Nz0 = (n + 2); % запоминаем индекс ненулевой функции бесселя, первые две нам известны точно, начинаем с третьей
+                    end
+                else
+                    for t = 0:(200 + Nmax) % можно пустить счетчик с (n+1)-ого так как до этого все посчитали предыдущей реккурентой, но тогда возникнет необходимость выбирать: а сколько нужно прибавить к счетчику итераций для того, чтобы стартовый элемент не был равен нулю
+                        k = 200 + Nmax - t; %нужен для того, чтобы идти сверху вниз
+                        sphjz0N(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
+                        sphjz0N(k + 1 + 1) = 1; %эти первые выбраны произвольным образом, но искомый номер больше на 200
+                        sphjz0N(k + 1) = (2 * k  + 3) / z0 * sphjz0N(k + 1 + 1) - sphjz0N(k + 2 + 1);
+                    end
+                    for t = (n + 1):(Nmax) % с (n+1)-ого, так как все предыдущие найдены точно!
+                        Rz0 = sphjz0N(Nz0) / sphjz0(Nz0); % здесь предусмотрен случай, чтобы знаменатель не обращался в ноль
+                        sphjz0(t + 1) = sphjz0N(t + 1) / Rz0;
+                    end
+                end
                 if (n + 1)<= (r)
                     sphj(n + 2) = (2 * (n + 1) - 1) / r * sphj(n + 1) - sphj(n); %jn+1 r
-                    sphjz0(n + 2) = (2 * (n + 1) - 1) / r * sphjz0(n + 1) - sphjz0(n); %jn+1 z0
                     if (sphj(n + 2) ~= 0)
                         Nr = (n + 2);
-                    end
-                    if (sphjz0(n + 2) ~= 0)
-                        Nz0 = (n + 2);
                     end
                 else
                     for t = 0:(200 + Nmax)
                         k = 200 + Nmax - t;
                         sphjN(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
                         sphjN(k + 1 + 1 ) = 1;
-                        sphjN(k + 1) = (2 * k  + 3) / ka * sphjN(k + 1 + 1) - sphjN(k + 2 + 1);
-                        
-                        sphjz0N(k + 2 + 1) = 5; %200 это порядок на который уходим, чтобы выйти на нужную ветвь и уйти в линейность
-                        sphjz0N(k + 1 + 1 ) = 1;
-                        sphjz0N(k + 1) = (2 * k  + 3) / ka * sphjz0N(k + 1 + 1) - sphjz0N(k + 2 + 1);
+                        sphjN(k + 1) = (2 * k  + 3) / r * sphjN(k + 1 + 1) - sphjN(k + 2 + 1);
                     end
                     for t = (n + 1):(Nmax)
                         Rr = sphjN(Nr) / sphj(Nr);
                         sphj(t + 1) = sphjN(t + 1) / Rr;
-                    end
-                     for t = (n + 1):(Nmax)
-                        Rz0 = sphjz0N(Nz0) / sphjz0(Nz0);
-                        sphjz0(t + 1) = sphjz0N(t + 1) / Rz0;
                     end
                 end
                 %sj(n + 1) = sphjka(n) - (n + 1) / ka * sphjka(n + 1); %jder1 r = ka
@@ -149,11 +155,11 @@ colormap jet %winter summer default spring autumn parula hsv hot cool gray bone 
 lim = caxis;
 caxis([0 2]);
 colorbar
-mesh(x, z, abs(p_sp(x + 201, z + 201) - p_spth(x + 201, z + 201)));
-colormap jet 
-lim = caxis;
-caxis([0 0.1]);
-colorbar
+% mesh(x, z, abs(p_sp(x + 201, z + 201) - p_spth(x + 201, z + 201)));
+% colormap jet 
+% lim = caxis;
+% caxis([0 0.1]);
+% colorbar
 %axis([-200 200 -200 200 0 10])
 % c = colorbar;
 % c.Label.String = 'Elevation'; %doesn't work
