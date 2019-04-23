@@ -1,0 +1,142 @@
+function varargout = gui02(varargin)
+
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @gui02_OpeningFcn, ...
+                   'gui_OutputFcn',  @gui02_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+
+
+
+% --- Executes just before gui02 is made visible.
+function gui02_OpeningFcn(hObject, eventdata, handles, varargin)
+
+handles.output = hObject;
+
+guidata(hObject, handles);
+
+
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = gui02_OutputFcn(hObject, eventdata, handles) 
+
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+
+function edit1_Callback(hObject, eventdata, handles)
+set(allchild(handles.axes1),'visible','off'); 
+    set(handles.axes1,'visible','off'); 
+    colorbar('off')
+
+% --- Executes during object creation, after setting all properties.
+function edit1_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in btnDraw.
+function btnDraw_Callback(hObject, eventdata, handles)
+set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
+set(0,'DefaultTextFontSize',14,'DefaultTextFontName','Times New Roman'); 
+set(handles.axes1, 'Visible', 'On');
+var = get(handles.edit1,'string');
+Nmax = str2double(var);
+p_ith(1:401, 1:401) = 0;
+p_spth(1:401, 1:401) = 0;
+p_i(1:401, 1:401) = 0;
+p_sp(1:401, 1:401) = 0;
+P(1:Nmax) = 0;
+z0 = 50;
+for x = -200:200
+    for z = -200:200
+        r = sqrt(x * x + z * z);
+        costheta = z / r;
+        p_ith(x + 201, z + 201) = exp(1i * r * costheta); % k*A = 1
+        P(1) = 1;
+        P(2) = costheta;
+        for n = 0:(Nmax - 1)
+            if n >= 1
+                if n <= (Nmax - 2)
+                    P(n + 2) = (2 * n + 1) / (n + 1) * costheta * P(n + 1) - n / (n + 1) * P(n);
+                end
+            end
+            p_i(x + 201, z + 201) = p_i(x + 201, z + 201) + 1i^(n) * (2 * n + 1) * P(n + 1) * sqrt(pi / (2 * r)) * besselj(n + 1 / 2, r);
+            p_sp(x + 201, z + 201) = p_sp(x + 201, z + 201) + 1i * (-1)^n * (2 * n  + 1) * sqrt(pi / (2 * z0))*(besselj(n + 1/2, z0) + 1i * bessely(n + 1/2, z0)) * P(n + 1) * sqrt(pi / (2 * r)) * besselj(n + 1 / 2, r);
+            p_spth(x + 201, z + 201) = exp(1i * sqrt((r)^2 + (z0)^2 + 2 * r * z0 * costheta)) / sqrt((r)^2 + (z0)^2 + 2 * r  * z0 * costheta); %50 = kz0 ЛЕЯРН Я ПЮЯЯЕХБЮРЕКЕЛ
+        end
+    end
+end
+x = -200:200;
+z = -200:200;
+if get(handles.rbtnPl, 'Value') == 1
+    mesh(x, z, abs(p_i(x + 201, z + 201) - p_ith(x + 201, z + 201)))
+    colormap jet 
+    lim = caxis;
+    caxis([0 2]); %caxis([0 0.1])
+    c = colorbar('southoutside');
+    c.Label.String = 'Elevation';
+    shading interp;
+end
+if get(handles.rbtnSph, 'Value') == 1
+    mesh(x, z, abs(p_sp(x + 201, z + 201) - p_spth(x + 201, z + 201)));
+colormap jet 
+lim = caxis;
+caxis([0 0.1])
+c = colorbar('southoutside');
+c.Label.String = 'Elevation';
+shading interp;
+end
+
+% --- Executes on button press in tglbtnRotate.
+function tglbtnRotate_Callback(hObject, eventdata, handles)
+if get(handles.tglbtnRotate, 'Value') == 1
+    set(handles.tglbtnRotate, 'String', 'Rotating')
+    for az = 360:-1:-0
+        view(az, 30)
+        pause(0.01)  
+    end
+    if az == 0
+        set(handles.tglbtnRotate, 'String', 'Static')
+        set(handles.tglbtnRotate, 'Value', '0')
+    end
+else
+    set(handles.tglbtnRotate, 'String', 'Click to rotate')
+end
+
+% --- Executes on button press in btnClose.
+function btnClose_Callback(hObject, eventdata, handles)
+close
+
+% --- Executes on button press in tglbtnCompare.
+function tglbtnCompare_Callback(hObject, eventdata, handles)
+% размещение текста 
+if get(handles.tglbtnCompare, 'Value') == 1
+    set(handles.txtWin,'String','Область, соотвествующая нулевому значению ''Elevation'', является областью сходимости, остальная же область расходится с теоретическими значениями по модулю на величину, большую или равную ''Elevation''')
+else set(handles.txtWin,'String','');
+end
+% задание черного цвета текста
+set(handles.txtWin,'ForegroundColor','black')
+% задание размера шрифта 14пт 
+set(handles.txtWin,'FontSize',14)
+
+if get(handles.tglbtnCompare, 'Value') == 1
+    view(0,90)
+else
+    view(-37.5, 30);
+end
