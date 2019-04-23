@@ -1,5 +1,4 @@
 function varargout = gui02(varargin)
-
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
@@ -10,7 +9,6 @@ gui_State = struct('gui_Name',       mfilename, ...
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
-
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
@@ -21,18 +19,13 @@ end
 
 % --- Executes just before gui02 is made visible.
 function gui02_OpeningFcn(hObject, eventdata, handles, varargin)
-
 handles.output = hObject;
-
 guidata(hObject, handles);
-
 
 
 
 % --- Outputs from this function are returned to the command line.
 function varargout = gui02_OutputFcn(hObject, eventdata, handles) 
-
-
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
@@ -43,11 +36,14 @@ set(allchild(handles.axes1),'visible','off');
     set(handles.axes1,'visible','off'); 
     colorbar('off')
 
+
+
 % --- Executes during object creation, after setting all properties.
 function edit1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
 
 
 % --- Executes on button press in btnDraw.
@@ -103,6 +99,8 @@ c.Label.String = 'Elevation';
 shading interp;
 end
 
+
+
 % --- Executes on button press in tglbtnRotate.
 function tglbtnRotate_Callback(hObject, eventdata, handles)
 if get(handles.tglbtnRotate, 'Value') == 1
@@ -119,19 +117,26 @@ else
     set(handles.tglbtnRotate, 'String', 'Click to rotate')
 end
 
+
+
 % --- Executes on button press in btnClose.
 function btnClose_Callback(hObject, eventdata, handles)
 close
 
+
+
 % --- Executes on button press in tglbtnCompare.
 function tglbtnCompare_Callback(hObject, eventdata, handles)
+
 % размещение текста 
 if get(handles.tglbtnCompare, 'Value') == 1
     set(handles.txtWin,'String','Область, соотвествующая нулевому значению ''Elevation'', является областью сходимости, остальная же область расходится с теоретическими значениями по модулю на величину, большую или равную ''Elevation''')
 else set(handles.txtWin,'String','');
 end
+
 % задание черного цвета текста
 set(handles.txtWin,'ForegroundColor','black')
+
 % задание размера шрифта 14пт 
 set(handles.txtWin,'FontSize',14)
 
